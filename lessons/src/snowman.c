@@ -24,11 +24,10 @@ int xOrigin = -1;
 
 // wich figure
 int figure = 0; // 0 == cube, 1 == teapot, 2 == cone
-
+double rotate_x = 0, rotate_y = 0;
 // figure postions
-double cube_rotate_y=0, cube_rotate_x=0;
-double tea_rotate_y=0, tea_rotate_x=0;
-double cone_rotate_y=0, cone_rotate_x=0;
+GLfloat rotate_x_cube = 0.0f, rotate_x_cha = 0.0f, rotate_x_cone = 0.0f, rotate_y_cube = 0.0f, rotate_y_cha = 0.0f, rotate_y_cone = 0.0f;
+//	figures rotations -- first: cube / second: teapot / third: cone
 
 void enable(void) {
     glEnable(GL_DEPTH_TEST); //enable the depth testing
@@ -61,41 +60,9 @@ void changeSize(int w, int h) {
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void drawCube() {
-	// Rotate when user changes rotate_x and rotate_y
-	if(0 == figure) {
-		glRotatef(cube_rotate_x, 1.0, 0.0, 0.0);
-		glRotatef(cube_rotate_y, 0.0, 1.0, 0.0);
-	}
-
-	glPushMatrix();
-    glutSolidCube((GLdouble) 2); //draw the cube
-	//glutSolidCone((GLdouble) 2,(GLdouble) 5,(GLint) 180,(GLint) 180);
-    glPopMatrix();
-}
-
-void drawTeapot() {
-	// Rotate when user changes rotate_x and rotate_y
-	if(1 == figure) {
-		glRotatef(tea_rotate_x, 1.0, 0.0, 0.0);
-		glRotatef(tea_rotate_y, 0.0, 1.0, 0.0);
-	}
-
-	glPushMatrix();
-	glutSolidTeapot((GLdouble) 2); //draw the teapot
-    glPopMatrix();
-}
-
-void drawCone() {
-	// Rotate when user changes rotate_x and rotate_y
-	if(2 == figure) {
-		glRotatef(cone_rotate_x, 1.0, 0.0, 0.0);
-		glRotatef(cone_rotate_y, 0.0, 1.0, 0.0);
-	}
-
-	glPushMatrix();
-	glutSolidCone((GLdouble) 2,(GLdouble) 5,(GLint) 180,(GLint) 180);//draw the cone
-    glPopMatrix();
+void movementFigure() {
+	glRotatef(rotate_x, 1.0, 0.0, 0.0);
+	glRotatef(rotate_y, 0.0, 1.0, 0.0);
 }
 
 void computePos(float deltaMove) {
@@ -104,7 +71,6 @@ void computePos(float deltaMove) {
 }
 
 void renderScene(void) {
-	enable();
 	if (deltaMove)
 		computePos(deltaMove);
 
@@ -118,53 +84,83 @@ void renderScene(void) {
 			   x+lx, 1.0f,  z+lz,
 			   0.0f, 1.0f,  0.0f);
 
-	// Draw cube
-	glTranslatef(10.0, 0, 10.0);
-	drawCube();
+	glPushMatrix();
+	glTranslatef(0.0, 0.0, 7.0);
+	glRotatef(rotate_x_cube,1.0f,0.0f,0.0f );
+	glRotatef(rotate_y_cube,0.0f,1.0f,0.0f);	
+	glutSolidCube((GLdouble) 2); //draw the cube
+	glPopMatrix();
+	
+	glPushMatrix();
 	glTranslatef(5.0, 0, 5.0);
-	drawTeapot();
-	glTranslatef(5.0, 0, 5.0);
-	drawCone();
+	glRotatef(rotate_x_cha,1.0f,0.0f,0.0f );
+	glRotatef(rotate_y_cha,0.0f,1.0f,0.0f);
+	glutSolidTeapot((GLdouble) 2); //draw the teapot
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(10.0, 0, 5.0);
+	glRotatef(rotate_x_cone,1.0f,0.0f,0.0f );
+	glRotatef(rotate_y_cone,0.0f,1.0f,0.0f);
+	glutSolidCone((GLdouble) 2,(GLdouble) 5,(GLint) 180,(GLint) 180);//draw the cone
+	glPopMatrix();
+
     glutSwapBuffers();
 } 
 
 void processNormalKeys(unsigned char key, int xx, int yy) { 
+	switch(figure){
+		case 0:
+			rotate_x = rotate_x_cube;
+			rotate_y = rotate_y_cube;
+			break;
+		case 1:
+			rotate_x = rotate_x_cha;
+			rotate_y = rotate_y_cha;
+			break;
+		case 2:
+			rotate_x = rotate_x_cone;
+			rotate_y = rotate_y_cone;
+			break;
+	}
+
 	switch(key) {
 		//	ESC
 		case 27:
 			exit(0);
 			break;
+		//  Up arrow - increase rotation by 5 degree
+		case 'w':
+			rotate_x += 5;
+			break;
+		//  Left arrow - decrease rotation by 5 degree
+		case 'a':
+			rotate_y -= 5;
+			break;
+		//  Down arrow - decrease rotation by 5 degree
+		case 's':
+			rotate_x -= 5;
+			break;
+		//  Right arrow - increase rotation by 5 degree
 		case 'd':
-			switch(figure) {
-				case 0:
-					cube_rotate_y += 5;
-					break;
-				case 1:
-					tea_rotate_y += 5;
-					break;
-				case 2:
-					cone_rotate_y += 5;
-					break;
-			}
+			rotate_y += 5;
 			break;
 	}
 
-	// ESC
-	if (key == 27)
-		exit(0);
-	//  Right arrow - increase rotation by 5 degree
-	if (key == 'd')
-		rotate_y += 5;
-
-	//  Left arrow - decrease rotation by 5 degree
-	else if (key == 'a')
-		rotate_y -= 5;
-
-	else if (key == 'w')
-		rotate_x += 5;
-
-	else if (key == 's')
-		rotate_x -= 5;
+	switch(figure){
+		case 0:
+			rotate_x_cube = rotate_x;
+			rotate_y_cube = rotate_y;
+			break;
+		case 1:
+			rotate_x_cha = rotate_x;
+			rotate_y_cha = rotate_y;
+			break;
+		case 2:
+			rotate_x_cone = rotate_x;
+			rotate_y_cone = rotate_y;
+			break;
+	}
 
 	//  Request display update
 	glutPostRedisplay();
@@ -189,13 +185,13 @@ void releaseKey(int key, int x, int y) {
 		case GLUT_KEY_DOWN:
 			deltaMove = 0;
 			break;
-		case GLUT_KEY_F1 :
+		case GLUT_KEY_F1:
 			figure = 0;
 			break;
-		case GLUT_KEY_F2 :
+		case GLUT_KEY_F2:
 			figure = 1;
 			break;
-		case GLUT_KEY_F3 :
+		case GLUT_KEY_F3:
 			figure = 2;
 			break;
 	}
@@ -233,8 +229,9 @@ int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitWindowPosition(100,100);
-	glutInitWindowSize(320,320);
+	glutInitWindowSize(1320,920);
 	glutCreateWindow("Lighthouse3D - GLUT Tutorial");
+		enable();
 
 	// register callbacks
 	glutDisplayFunc(renderScene);
@@ -249,9 +246,6 @@ int main(int argc, char **argv) {
 	// here are the two new functions
 	glutMouseFunc(mouseButton);
 	glutMotionFunc(mouseMove);
-
-	// OpenGL init
-	glEnable(GL_DEPTH_TEST);
 
 	// enter GLUT event processing cycle
 	glutMainLoop();
