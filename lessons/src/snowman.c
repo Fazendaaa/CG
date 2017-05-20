@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #ifdef __APPLE__
@@ -10,11 +11,16 @@
 // angle of rotation for the camera direction
 float angle = 0.0f;
 
+/*
+gluLookAt( x,    1.0f,  z,
+		   x+lx, 1.0f,  z+lz,
+		   0.0f, 1.0f,  0.0f);
+*/
 // actual vector representing the camera's direction
 float lx=0.0f,lz=-1.0f;
 
 // XZ position of the camera
-float x=0.0f, z=5.0f;
+float x=5.0f, z=22.0f;
 
 // the key states. These variables will be zero
 //when no key is being presses
@@ -28,6 +34,9 @@ double rotate_x = 0, rotate_y = 0;
 // figure postions
 GLfloat rotate_x_cube = 0.0f, rotate_x_cha = 0.0f, rotate_x_cone = 0.0f, rotate_y_cube = 0.0f, rotate_y_cha = 0.0f, rotate_y_cone = 0.0f;
 //	figures rotations -- first: cube / second: teapot / third: cone
+int translate = 0;
+int scale = 0;
+float porportion = 0, porportion_cube = 1, porportion_cha = 1, porportion_cone = 1;
 
 void enable(void) {
     glEnable(GL_DEPTH_TEST); //enable the depth testing
@@ -87,21 +96,24 @@ void renderScene(void) {
 	glPushMatrix();
 	glTranslatef(0.0, 0.0, 7.0);
 	glRotatef(rotate_x_cube,1.0f,0.0f,0.0f );
-	glRotatef(rotate_y_cube,0.0f,1.0f,0.0f);	
+	glRotatef(rotate_y_cube,0.0f,1.0f,0.0f);
+	glScalef(porportion_cube, porportion_cube, porportion_cube);
 	glutSolidCube((GLdouble) 2); //draw the cube
 	glPopMatrix();
 	
 	glPushMatrix();
 	glTranslatef(5.0, 0, 5.0);
-	glRotatef(rotate_x_cha,1.0f,0.0f,0.0f );
-	glRotatef(rotate_y_cha,0.0f,1.0f,0.0f);
+	glRotatef(rotate_x_cha, 1.0f, 0.0f, 0.0f );
+	glRotatef(rotate_y_cha, 0.0f, 1.0f, 0.0f);
+	glScalef(porportion_cha, porportion_cha, porportion_cha);
 	glutSolidTeapot((GLdouble) 2); //draw the teapot
 	glPopMatrix();
 
 	glPushMatrix();
 	glTranslatef(10.0, 0, 5.0);
-	glRotatef(rotate_x_cone,1.0f,0.0f,0.0f );
-	glRotatef(rotate_y_cone,0.0f,1.0f,0.0f);
+	glRotatef(rotate_x_cone, 1.0f, 0.0f, 0.0f );
+	glRotatef(rotate_y_cone, 0.0f, 1.0f, 0.0f);
+	glScalef(porportion_cone, porportion_cone, porportion_cone);
 	glutSolidCone((GLdouble) 2,(GLdouble) 5,(GLint) 180,(GLint) 180);//draw the cone
 	glPopMatrix();
 
@@ -132,18 +144,32 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		//  Up arrow - increase rotation by 5 degree
 		case 'w':
 			rotate_x += 5;
+			scale = 0;
 			break;
 		//  Left arrow - decrease rotation by 5 degree
 		case 'a':
 			rotate_y -= 5;
+			scale = 0;
 			break;
 		//  Down arrow - decrease rotation by 5 degree
 		case 's':
 			rotate_x -= 5;
+			scale = 0;
 			break;
 		//  Right arrow - increase rotation by 5 degree
 		case 'd':
 			rotate_y += 5;
+			scale = 0;
+			break;
+		case 'e':
+			scale = !scale;
+			porportion = 0;
+			break;
+		case 'r':
+			porportion += 0.2;
+			break;
+		case 'f':
+			porportion -= 0.2;
 			break;
 	}
 
@@ -151,14 +177,23 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 0:
 			rotate_x_cube = rotate_x;
 			rotate_y_cube = rotate_y;
+			if(scale)
+				if(0.2 <= porportion_cube && 3 >= porportion_cube) {
+					porportion_cube += porportion;
+					printf("%f", porportion_cube);
+				}
 			break;
 		case 1:
 			rotate_x_cha = rotate_x;
 			rotate_y_cha = rotate_y;
+			if(scale)
+				porportion_cha += porportion;
 			break;
 		case 2:
 			rotate_x_cone = rotate_x;
 			rotate_y_cone = rotate_y;
+			if(scale)
+				porportion_cone += porportion;
 			break;
 	}
 
@@ -187,12 +222,18 @@ void releaseKey(int key, int x, int y) {
 			break;
 		case GLUT_KEY_F1:
 			figure = 0;
+			scale = 0;
+			porportion = 0;
 			break;
 		case GLUT_KEY_F2:
 			figure = 1;
+			scale = 0;
+			porportion = 0;
 			break;
 		case GLUT_KEY_F3:
 			figure = 2;
+			scale = 0;
+			porportion = 0;
 			break;
 	}
 } 
@@ -206,7 +247,7 @@ void mouseMove(int x, int y) {
 		// update camera's direction
 		lx = sin(angle + deltaAngle);
 		lz = -cos(angle + deltaAngle);
-	}
+	}    
 }
 
 void mouseButton(int button, int state, int x, int y) {
@@ -230,8 +271,8 @@ int main(int argc, char **argv) {
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(1320,920);
-	glutCreateWindow("Lighthouse3D - GLUT Tutorial");
-		enable();
+	glutCreateWindow("T2");
+	enable();
 
 	// register callbacks
 	glutDisplayFunc(renderScene);
