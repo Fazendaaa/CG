@@ -9,19 +9,20 @@
 #endif
 
 // angle of rotation for the camera direction
-float angle = 0.0f;
+float angle = 0.0f, depth = 0;
 
 // actual vector representing the camera's direction
-float lx=0.0f,lz=-1.0f;
+float lx=0.0f, ly=0.0f, lz=-1.0f;
 
 // XZ position of the camera
-float x=5.0f, z=22.0f;
+float x=5.0f, y=1.0f, z=22.0f;
 
 // the key states. These variables will be zero
 //when no key is being presses
-float deltaAngle = 0.0f;
+float deltaAngle = 0.0f, alphaAngle = 0;
 float deltaMove = 0;
 int xOrigin = -1;
+int yOrigin = -1;
 
 // wich figure
 int figure = 0; // 0 == cube, 1 == teapot, 2 == cone
@@ -72,14 +73,15 @@ void movementFigure() {
 	glRotatef(rotate_y, 0.0, 1.0, 0.0);
 }
 
-void computePos(float deltaMove) {
+void computePos() {
 	x += deltaMove * lx * 0.1f;
 	z += deltaMove * lz * 0.1f;
+	y += deltaMove * ly * 0.1f;
 }
 
 void renderScene(void) {
 	if (deltaMove)
-		computePos(deltaMove);
+		computePos();
 
 	// Clear Color and Depth Buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -87,9 +89,9 @@ void renderScene(void) {
 	// Reset transformations
 	glLoadIdentity();
 	// Set the camera
-	gluLookAt( x,    1.0f,  z,
-			   x+lx, 1.0f,  z+lz,
-			   0.0f, 1.0f,  0.0f);
+	gluLookAt( x,    y,    z,
+			   x+lx, y+ly, z+lz,
+			   0.0f, 1.0f, 0.0f);
 
 	glPushMatrix();
 	glTranslatef(0.0, 0.0, 7.0);
@@ -244,17 +246,6 @@ void pressKey(int key, int xx, int yy) {
 		case GLUT_KEY_DOWN:
 			deltaMove = -0.5f;
 			break;
-	}
-} 
-
-void releaseKey(int key, int x, int y) { 	
-	switch (key) {
-		case GLUT_KEY_UP:
-			deltaMove = 0;
-			break;
-		case GLUT_KEY_DOWN:
-			deltaMove = 0;
-			break;
 		case GLUT_KEY_F1:
 			figure = 0;
 			porportion = 0;
@@ -270,15 +261,27 @@ void releaseKey(int key, int x, int y) {
 	}
 } 
 
+void releaseKey(int key, int x, int y) { 	
+	switch (key) {
+		case GLUT_KEY_UP:
+			deltaMove = 0;
+			break;
+		case GLUT_KEY_DOWN:
+			deltaMove = 0;
+			break;
+	}
+} 
+
 void mouseMove(int x, int y) { 	
 	// this will only be true when the left button is down
 	if (xOrigin >= 0) {
 		// update deltaAngle
 		deltaAngle = (x - xOrigin) * 0.001f;
-
+		alphaAngle = (y - yOrigin) * 0.001f;
 		// update camera's direction
 		lx = sin(angle + deltaAngle);
 		lz = -cos(angle + deltaAngle);
+		ly = -sin(depth + alphaAngle);
 	}    
 }
 
@@ -289,10 +292,13 @@ void mouseButton(int button, int state, int x, int y) {
 		// when the button is released
 		if (state == GLUT_UP) {
 			angle += deltaAngle;
+			depth += alphaAngle;
 			xOrigin = -1;
+			yOrigin = -1;
 		}
 		else  {// state = GLUT_DOWN
 			xOrigin = x;
+			yOrigin = y;
 		}
 	}
 }
