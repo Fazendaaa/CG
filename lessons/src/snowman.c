@@ -11,11 +11,6 @@
 // angle of rotation for the camera direction
 float angle = 0.0f;
 
-/*
-gluLookAt( x,    1.0f,  z,
-		   x+lx, 1.0f,  z+lz,
-		   0.0f, 1.0f,  0.0f);
-*/
 // actual vector representing the camera's direction
 float lx=0.0f,lz=-1.0f;
 
@@ -32,10 +27,13 @@ int xOrigin = -1;
 int figure = 0; // 0 == cube, 1 == teapot, 2 == cone
 double rotate_x = 0, rotate_y = 0;
 // figure postions
-GLfloat rotate_x_cube = 0.0f, rotate_x_cha = 0.0f, rotate_x_cone = 0.0f, rotate_y_cube = 0.0f, rotate_y_cha = 0.0f, rotate_y_cone = 0.0f;
+GLfloat rotate_x_cube = 0.0f, rotate_x_cha = 0.0f, rotate_x_cone = 0.0f;
+GLfloat rotate_y_cube = 0.0f, rotate_y_cha = 0.0f, rotate_y_cone = 0.0f;
+GLfloat translate_x_cube = 0.0f, translate_y_cube = 0.0f, translate_z_cube = 0.0f;
+GLfloat translate_x_cha = 0.0f, translate_y_cha = 0.0f, translate_z_cha = 0.0f;
+GLfloat translate_x_cone = 0.0f, translate_y_cone = 0.0f, translate_z_cone = 0.0f;
 //	figures rotations -- first: cube / second: teapot / third: cone
-int translate = 0;
-int scale = 0;
+float translate_x = 0, translate_y = 0, translate_z = 0;
 float porportion = 0, porportion_cube = 1, porportion_cha = 1, porportion_cone = 1;
 
 void enable(void) {
@@ -95,7 +93,8 @@ void renderScene(void) {
 
 	glPushMatrix();
 	glTranslatef(0.0, 0.0, 7.0);
-	glRotatef(rotate_x_cube,1.0f,0.0f,0.0f );
+	glTranslatef(translate_x_cube, translate_y_cube, translate_z_cube);
+	glRotatef(rotate_x_cube,1.0f,0.0f,0.0f);
 	glRotatef(rotate_y_cube,0.0f,1.0f,0.0f);
 	glScalef(porportion_cube, porportion_cube, porportion_cube);
 	glutSolidCube((GLdouble) 2); //draw the cube
@@ -103,6 +102,7 @@ void renderScene(void) {
 	
 	glPushMatrix();
 	glTranslatef(5.0, 0, 5.0);
+	glTranslatef(translate_x_cha, translate_y_cha, translate_z_cha);
 	glRotatef(rotate_x_cha, 1.0f, 0.0f, 0.0f );
 	glRotatef(rotate_y_cha, 0.0f, 1.0f, 0.0f);
 	glScalef(porportion_cha, porportion_cha, porportion_cha);
@@ -111,6 +111,7 @@ void renderScene(void) {
 
 	glPushMatrix();
 	glTranslatef(10.0, 0, 5.0);
+	glTranslatef(translate_x_cone, translate_y_cone, translate_z_cone);
 	glRotatef(rotate_x_cone, 1.0f, 0.0f, 0.0f );
 	glRotatef(rotate_y_cone, 0.0f, 1.0f, 0.0f);
 	glScalef(porportion_cone, porportion_cone, porportion_cone);
@@ -125,14 +126,23 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 0:
 			rotate_x = rotate_x_cube;
 			rotate_y = rotate_y_cube;
+			translate_x = translate_x_cube;
+			translate_y = translate_y_cube;
+			translate_z = translate_z_cube;
 			break;
 		case 1:
 			rotate_x = rotate_x_cha;
 			rotate_y = rotate_y_cha;
+			translate_x = translate_x_cha;
+			translate_y = translate_y_cha;
+			translate_z = translate_z_cha;
 			break;
 		case 2:
 			rotate_x = rotate_x_cone;
 			rotate_y = rotate_y_cone;
+			translate_x = translate_x_cone;
+			translate_y = translate_y_cone;
+			translate_z = translate_z_cone;
 			break;
 	}
 
@@ -144,59 +154,84 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		//  Up arrow - increase rotation by 5 degree
 		case 'w':
 			rotate_x += 5;
-			scale = 0;
 			break;
 		//  Left arrow - decrease rotation by 5 degree
 		case 'a':
 			rotate_y -= 5;
-			scale = 0;
 			break;
 		//  Down arrow - decrease rotation by 5 degree
 		case 's':
 			rotate_x -= 5;
-			scale = 0;
 			break;
 		//  Right arrow - increase rotation by 5 degree
 		case 'd':
-			rotate_y += 5;
-			scale = 0;
+			rotate_x += 5;
 			break;
+		//	Increase figure size
 		case 'e':
-			scale = !scale;
-			porportion = 0;
-			break;
-		case 'r':
 			porportion += 0.2;
 			break;
-		case 'f':
+		//	Decrease figure size
+		case 'q':
 			porportion -= 0.2;
 			break;
+		//	Move right side figure
+		case 'r':
+			translate_x += 0.5;
+			break;
+		//	Move left side figure
+		case 'f':
+			translate_x -= 0.5;
+			break;
+		//	Move up figure
+		case 't':
+			translate_y += 0.5;
+			break;
+		//	Move down figure
+		case 'g':
+			translate_y -= 0.5;
+			break;
+		//	Move foward figure
+		case 'y':
+			translate_z += 0.5;
+			break;
+		//	Move backward figure
+		case 'h':
+			translate_z -= 0.5;
+			break;						
 	}
 
 	switch(figure){
 		case 0:
 			rotate_x_cube = rotate_x;
 			rotate_y_cube = rotate_y;
-			if(scale)
-				if(0.2 <= porportion_cube && 3 >= porportion_cube) {
-					porportion_cube += porportion;
-					printf("%f", porportion_cube);
-				}
+			translate_x_cube = translate_x;
+			translate_y_cube = translate_y;
+			translate_z_cube = translate_z;
+			if(0.2 <= porportion_cube+porportion && 3 >= porportion_cube+porportion)
+				porportion_cube += porportion;
 			break;
 		case 1:
 			rotate_x_cha = rotate_x;
 			rotate_y_cha = rotate_y;
-			if(scale)
+			translate_x_cha = translate_x;
+			translate_y_cha = translate_y;
+			translate_z_cha = translate_z;
+			if(0.2 <= porportion_cha+porportion && 3 >= porportion_cha+porportion)
 				porportion_cha += porportion;
 			break;
 		case 2:
 			rotate_x_cone = rotate_x;
 			rotate_y_cone = rotate_y;
-			if(scale)
+			translate_x_cone = translate_x;
+			translate_y_cone = translate_y;
+			translate_z_cone = translate_z;
+			if(0.2 <= porportion_cone+porportion && 3 >= porportion_cone+porportion)
 				porportion_cone += porportion;
 			break;
 	}
 
+	porportion = 0;
 	//  Request display update
 	glutPostRedisplay();
 } 
@@ -222,17 +257,14 @@ void releaseKey(int key, int x, int y) {
 			break;
 		case GLUT_KEY_F1:
 			figure = 0;
-			scale = 0;
 			porportion = 0;
 			break;
 		case GLUT_KEY_F2:
 			figure = 1;
-			scale = 0;
 			porportion = 0;
 			break;
 		case GLUT_KEY_F3:
 			figure = 2;
-			scale = 0;
 			porportion = 0;
 			break;
 	}
