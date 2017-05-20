@@ -26,10 +26,11 @@ int yOrigin = -1;
 
 // wich figure
 int figure = 0; // 0 == cube, 1 == teapot, 2 == cone
-double rotate_x = 0, rotate_y = 0;
+double rotate_x = 0, rotate_y = 0, rotate_z = 0;
 // figure postions
 GLfloat rotate_x_cube = 0.0f, rotate_x_cha = 0.0f, rotate_x_cone = 0.0f;
 GLfloat rotate_y_cube = 0.0f, rotate_y_cha = 0.0f, rotate_y_cone = 0.0f;
+GLfloat rotate_z_cube = 0.0f, rotate_z_cha = 0.0f, rotate_z_cone = 0.0f;
 GLfloat translate_x_cube = 0.0f, translate_y_cube = 0.0f, translate_z_cube = 0.0f;
 GLfloat translate_x_cha = 0.0f, translate_y_cha = 0.0f, translate_z_cha = 0.0f;
 GLfloat translate_x_cone = 0.0f, translate_y_cone = 0.0f, translate_z_cone = 0.0f;
@@ -98,6 +99,7 @@ void renderScene(void) {
 	glTranslatef(translate_x_cube, translate_y_cube, translate_z_cube);
 	glRotatef(rotate_x_cube,1.0f,0.0f,0.0f);
 	glRotatef(rotate_y_cube,0.0f,1.0f,0.0f);
+	glRotatef(rotate_z_cube,0.0f,0.0f,1.0f);
 	glScalef(porportion_cube, porportion_cube, porportion_cube);
 	glutSolidCube((GLdouble) 2); //draw the cube
 	glPopMatrix();
@@ -105,8 +107,9 @@ void renderScene(void) {
 	glPushMatrix();
 	glTranslatef(5.0, 0, 5.0);
 	glTranslatef(translate_x_cha, translate_y_cha, translate_z_cha);
-	glRotatef(rotate_x_cha, 1.0f, 0.0f, 0.0f );
+	glRotatef(rotate_x_cha, 1.0f, 0.0f, 0.0f);
 	glRotatef(rotate_y_cha, 0.0f, 1.0f, 0.0f);
+	glRotatef(rotate_z_cha, 0.0f, 0.0f, 1.0f);
 	glScalef(porportion_cha, porportion_cha, porportion_cha);
 	glutSolidTeapot((GLdouble) 2); //draw the teapot
 	glPopMatrix();
@@ -114,8 +117,9 @@ void renderScene(void) {
 	glPushMatrix();
 	glTranslatef(10.0, 0, 5.0);
 	glTranslatef(translate_x_cone, translate_y_cone, translate_z_cone);
-	glRotatef(rotate_x_cone, 1.0f, 0.0f, 0.0f );
+	glRotatef(rotate_x_cone, 1.0f, 0.0f, 0.0f);
 	glRotatef(rotate_y_cone, 0.0f, 1.0f, 0.0f);
+	glRotatef(rotate_z_cone, 0.0f, 0.0f, 1.0f);
 	glScalef(porportion_cone, porportion_cone, porportion_cone);
 	glutSolidCone((GLdouble) 2,(GLdouble) 5,(GLint) 180,(GLint) 180);//draw the cone
 	glPopMatrix();
@@ -128,6 +132,7 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 0:
 			rotate_x = rotate_x_cube;
 			rotate_y = rotate_y_cube;
+			rotate_z = rotate_z_cube;
 			translate_x = translate_x_cube;
 			translate_y = translate_y_cube;
 			translate_z = translate_z_cube;
@@ -135,6 +140,7 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 1:
 			rotate_x = rotate_x_cha;
 			rotate_y = rotate_y_cha;
+			rotate_z = rotate_z_cha;
 			translate_x = translate_x_cha;
 			translate_y = translate_y_cha;
 			translate_z = translate_z_cha;
@@ -142,6 +148,7 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 2:
 			rotate_x = rotate_x_cone;
 			rotate_y = rotate_y_cone;
+			rotate_z = rotate_z_cone;
 			translate_x = translate_x_cone;
 			translate_y = translate_y_cone;
 			translate_z = translate_z_cone;
@@ -153,29 +160,28 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 27:
 			exit(0);
 			break;
-		//  Up arrow - increase rotation by 5 degree
-		case 'w':
+		//  Increase roatiton x axis
+		case 'q':
 			rotate_x += 5;
 			break;
-		//  Left arrow - decrease rotation by 5 degree
+		//  Decrease roatiton x axis
 		case 'a':
-			rotate_y -= 5;
-			break;
-		//  Down arrow - decrease rotation by 5 degree
-		case 's':
 			rotate_x -= 5;
 			break;
-		//  Right arrow - increase rotation by 5 degree
-		case 'd':
-			rotate_x += 5;
+		//  Increase roatiton y axis
+		case 'w':
+			rotate_y += 5;
 			break;
-		//	Increase figure size
+		//  Decrease roatiton y axis
+		case 's':
+			rotate_y -= 5;
+			break;
 		case 'e':
-			porportion += 0.2;
+			rotate_z += 5;
 			break;
-		//	Decrease figure size
-		case 'q':
-			porportion -= 0.2;
+		//  Decrease roatiton y axis
+		case 'd':
+			rotate_z -= 5;
 			break;
 		//	Move right side figure
 		case 'r':
@@ -201,12 +207,21 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 'h':
 			translate_z -= 0.5;
 			break;						
+		//	Increase figure size
+		case 'u':
+			porportion += 0.2;
+			break;
+		//	Decrease figure size
+		case 'j':
+			porportion -= 0.2;
+			break;
 	}
 
 	switch(figure){
 		case 0:
 			rotate_x_cube = rotate_x;
 			rotate_y_cube = rotate_y;
+			rotate_z_cube = rotate_z;
 			translate_x_cube = translate_x;
 			translate_y_cube = translate_y;
 			translate_z_cube = translate_z;
@@ -216,6 +231,7 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 1:
 			rotate_x_cha = rotate_x;
 			rotate_y_cha = rotate_y;
+			rotate_z_cha = rotate_z;
 			translate_x_cha = translate_x;
 			translate_y_cha = translate_y;
 			translate_z_cha = translate_z;
@@ -225,6 +241,7 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 2:
 			rotate_x_cone = rotate_x;
 			rotate_y_cone = rotate_y;
+			rotate_z_cone = rotate_z;
 			translate_x_cone = translate_x;
 			translate_y_cone = translate_y;
 			translate_z_cone = translate_z;
