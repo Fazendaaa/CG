@@ -1,3 +1,9 @@
+/*
+				Lucas Almeida Carotta, 		8598732
+				Nilson Furquim da Silva, 	8937250
+				Victor Hugo Heclis, 		8937382
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
