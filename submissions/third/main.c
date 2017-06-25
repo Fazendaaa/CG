@@ -32,23 +32,28 @@ int yOrigin = -1;
 
 // wich figure
 int figure = 0; // 0 == cube, 1 == teapot, 2 == cone
+int isFlat = 0;
 double rotate_x = 0, rotate_y = 0, rotate_z = 0;
 // figure postions
-GLfloat rotate_x_cube = 0.0f, rotate_x_cha = 0.0f, rotate_x_cone = 0.0f;
-GLfloat rotate_y_cube = 0.0f, rotate_y_cha = 0.0f, rotate_y_cone = 0.0f;
-GLfloat rotate_z_cube = 0.0f, rotate_z_cha = 0.0f, rotate_z_cone = 0.0f;
+GLfloat rotate_x_cube = 0.0f, rotate_x_cone = 0.0f;
+GLfloat rotate_y_cube = 0.0f, rotate_y_cone = 0.0f;
+GLfloat rotate_z_cube = 0.0f, rotate_z_cone = 0.0f;
 GLfloat translate_x_cube = 0.0f, translate_y_cube = 0.0f, translate_z_cube = 0.0f;
-GLfloat translate_x_cha = 0.0f, translate_y_cha = 0.0f, translate_z_cha = 0.0f;
 GLfloat translate_x_cone = 0.0f, translate_y_cone = 0.0f, translate_z_cone = 0.0f;
 //	figures rotations -- first: cube / second: teapot / third: cone
 float translate_x = 0, translate_y = 0, translate_z = 0;
-float porportion = 0, porportion_cube = 1, porportion_cha = 1, porportion_cone = 1;
-GLfloat first_light_source_ambient[] = {1.0, 0.0, 0.0, 1.0};
-GLfloat first_light_source_postion[] = {0.0, 0.0, 20.0, 0.0};
-GLfloat second_light_source[] = {0.0, 0.0, 1.0, 1.0};
-GLfloat third_light_source[] = {0.0, 1.0, 0.0, 1.0};
+float porportion = 0, porportion_cube = 1, porportion_cone = 1;
+GLfloat light0_param[] = {1.0, 0.0, 0.0, 1.0};
+GLfloat light0_position[] = {-2.0, 0.0, 7.0, 1.0};
+GLfloat light1_param[] = {0.0, 0.0, 1.0, 1.0};
+GLfloat light1_position[] = {4.5, 0.0, 7.0, 1.0};
+GLfloat light2_param[] = {0.0, 0.0, 1.0, 1.0};
+GLfloat light2_position[] = {13.0, 0.0, 7.0, 1.0};
 GLfloat white[] = {1.0, 1.0, 1.0, 1.0};
+GLfloat red[] = {1.0, 0.0, 0.0, 1.0};
+GLfloat green[] = {0.0, 1.0, 0.0, 1.0};
 GLfloat blue[] = {0.0, 0.0, 1.0, 1.0};
+GLfloat especularidade[4]={0.1, 0.1, 0.1, 1.0}; 
 
 void enable(void) {
     glEnable(GL_DEPTH_TEST); //enable the depth testing
@@ -56,8 +61,6 @@ void enable(void) {
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHT2);
-    //glShadeModel(GL_SMOOTH); //set the shader to smooth shader
-	//glEnable(GL_COLOR_MATERIAL);
 }
 
 void changeSize(int w, int h) {
@@ -109,13 +112,49 @@ void renderScene(void) {
 			   x+lx, y+ly, z+lz,
 			   0.0f, 1.0f, 0.0f);
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, first_light_source_ambient);
-	//glLightfv(GL_LIGHT0, GL_POSITION, first_light_source_postion);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, second_light_source);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, third_light_source);
+
+	if(isFlat) {
+		glShadeModel(GL_FLAT);
+	} else {
+		glShadeModel(GL_SMOOTH); //set the shader to smooth shader
+	}
+	
+	glPushMatrix ();
+	
+	//Red light
+	glTranslated(light0_position[0], light0_position[1], light0_position[2]);
+	glDisable (GL_LIGHTING);
+	glColor3f (0.0, 1.0, 1.0);
+	glutWireCube (0.1);
+	glEnable (GL_LIGHTING);
+	glPopMatrix();
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, red);
+	glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+	
+	//
+	glPushMatrix();
+	glTranslated (light1_position[0], light1_position[1], light1_position[2]);
+	glDisable (GL_LIGHTING);
+	glColor3f (0.0, 1.0, 1.0);
+	glutWireCube (0.1);
+	glEnable (GL_LIGHTING);
+	glPopMatrix();
+	glLightfv(GL_LIGHT1, GL_SPECULAR, green);
+	glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+
+	glPushMatrix();
+	glTranslated (light2_position[0], light2_position[1], light2_position[2]);
+	glDisable (GL_LIGHTING);
+	glColor3f (0.0, 1.0, 1.0);
+	glutWireCube (0.1);
+	glEnable (GL_LIGHTING);
+	glPopMatrix();
+	glLightfv(GL_LIGHT2, GL_SPECULAR, blue);
+	glLightfv(GL_LIGHT2, GL_POSITION, light2_position);
 
 	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-
+	//glMaterialfv(GL_FRONT, GL_SPECULAR, especularidade);
+	
 	// draw the cube
 	glPushMatrix();
 	glTranslatef(0.0, 0.0, 7.0);
@@ -124,11 +163,11 @@ void renderScene(void) {
 	glRotatef(rotate_y_cube,0.0f,1.0f,0.0f);
 	glRotatef(rotate_z_cube,0.0f,0.0f,1.0f);
 	glScalef(porportion_cube, porportion_cube, porportion_cube);
-	glColor3f(1.0, 0.0, 0.0);
 	glutSolidCube((GLdouble) 2);
 	glPopMatrix();
 	
 	glMaterialfv(GL_FRONT, GL_SPECULAR, blue);
+
 	//draw the cone
 	glPushMatrix();
 	glTranslatef(10.0, 0, 5.0);
@@ -137,13 +176,11 @@ void renderScene(void) {
 	glRotatef(rotate_y_cone, 0.0f, 1.0f, 0.0f);
 	glRotatef(rotate_z_cone, 0.0f, 0.0f, 1.0f);
 	glScalef(porportion_cone, porportion_cone, porportion_cone);
-	glColor3f(0.0, 0.0, 1.0);
 	glutSolidCone((GLdouble) 2,(GLdouble) 5,(GLint) 4,(GLint) 180);
 	glPopMatrix();
 
     glutSwapBuffers();
 } 
-
 void processNormalKeys(unsigned char key, int xx, int yy) { 
 	switch(figure){
 		case 0:
@@ -155,14 +192,6 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 			translate_z = translate_z_cube;
 			break;
 		case 1:
-			rotate_x = rotate_x_cha;
-			rotate_y = rotate_y_cha;
-			rotate_z = rotate_z_cha;
-			translate_x = translate_x_cha;
-			translate_y = translate_y_cha;
-			translate_z = translate_z_cha;
-			break;
-		case 2:
 			rotate_x = rotate_x_cone;
 			rotate_y = rotate_y_cone;
 			rotate_z = rotate_z_cone;
@@ -232,6 +261,9 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 		case 'j':
 			porportion -= 0.2;
 			break;
+		case 'p':
+			isFlat = !isFlat;
+			break;
 	}
 
 	switch(figure){
@@ -246,16 +278,6 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
 				porportion_cube += porportion;
 			break;
 		case 1:
-			rotate_x_cha = rotate_x;
-			rotate_y_cha = rotate_y;
-			rotate_z_cha = rotate_z;
-			translate_x_cha = translate_x;
-			translate_y_cha = translate_y;
-			translate_z_cha = translate_z;
-			if(0.2 <= porportion_cha+porportion && 3 >= porportion_cha+porportion)
-				porportion_cha += porportion;
-			break;
-		case 2:
 			rotate_x_cone = rotate_x;
 			rotate_y_cone = rotate_y;
 			rotate_z_cone = rotate_z;
@@ -286,10 +308,6 @@ void pressKey(int key, int xx, int yy) {
 			break;
 		case GLUT_KEY_F2:
 			figure = 1;
-			porportion = 0;
-			break;
-		case GLUT_KEY_F3:
-			figure = 2;
 			porportion = 0;
 			break;
 	}
